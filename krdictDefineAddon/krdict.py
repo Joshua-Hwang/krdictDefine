@@ -3,34 +3,38 @@ import requests
 import xmltodict # type: ignore
 from typing import Dict, List
 
+
 APP_KEY = "REPLACE WITH YOUR OWN"
 
-base_url = "https://krdict.korean.go.kr/api"
-language = 'en-gb'
+BASE_URL = "https://krdict.korean.go.kr/api"
+LANGUAGE = 'en-gb'
 
-def setOxfordKey(app_key) -> None:
+def setKrdictKey(appKey) -> None:
     global APP_KEY
-    APP_KEY = app_key
+    APP_KEY = appKey
 
-def getTargetCodes(word, app_key=None, language=language) -> List[str]:
+def getTargetCodes(word, appKey=None, language=LANGUAGE) -> List[str]:
     """krdict requires finding the target_code of the word"""
-    if app_key is None:
-        app_key = APP_KEY
+    if appKey is None:
+        appKey = APP_KEY
 
     #print("getLemmas", file=sys.stderr)
 
-    url = base_url + '/search'
+    url = BASE_URL + '/search'
     r = requests.get(url,
             params={
-                'key': app_key,
+                'key': appKey,
                 'q': word
             })
 
     res: List[str] = []
     if not r.ok:
         raise requests.exceptions.HTTPError(response=r)
+    xml = xmltodict.parse(r.text.strip())
+    if 'error' in xml:
+        raise requests.exceptions.HTTPError(response=r)
 
-    items = xmltodict.parse(r.text)["channel"]["item"]
+    items = xml["channel"]["item"]
     if not isinstance(items, list):
         item = items
         items = [item]
@@ -42,7 +46,7 @@ def getTargetCodes(word, app_key=None, language=language) -> List[str]:
         
     return res
 
-def getView(target_code, app_key=None, language=language) -> object:
+def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
     """returns an empty dict if the entry can't be found
     returning: {
         word: str,
@@ -52,18 +56,21 @@ def getView(target_code, app_key=None, language=language) -> object:
             originalLanguage: str
         }
         partOfSpeech: str,
-        definition: str,
+        senses: List[{
+            definition: str,
+            example: str
+        }]
     }"""
-    if app_key is None:
-        app_key = APP_KEY
+    if appKey is None:
+        appKey = APP_KEY
 
     #print("getEntry", file=sys.stderr)
 
-    url = base_url + '/view'
+    url = BASE_URL + '/view'
     r = requests.get(url,
             params={
-                'key': app_key,
-                'q': target_code,
+                'key': appKey,
+                'q': targetCode,
                 'method': 'target_code',
                 'translated': 'y',
                 'trans_lang': '1' # This is English
@@ -72,7 +79,7 @@ def getView(target_code, app_key=None, language=language) -> object:
     returning: Dict = {}
     if not r.ok:
         raise requests.exceptions.HTTPError(response=r)
-    xml = xmltodict.parse(r.text)
+    xml = xmltodict.parse(r.text.strip())
     if 'error' in xml:
         raise requests.exceptions.HTTPError(response=r)
 
@@ -93,6 +100,15 @@ def getView(target_code, app_key=None, language=language) -> object:
         partOfSpeech = partOfSpeech[0]
     returning['partOfSpeech'] = partOfSpeech
 
-    returning['definition'] = wordInfo['sense_info']['translation']['trans_dfn']
+    returning['senses'] = []
+    senses = wordInfo['sense_info']
+    if not isinstance(senses, list):
+        sense = senses
+        senses = [sense]
+    for sense in senses:
+        returning['senses'].append({
+            'definition': sense['translation']['trans_dfn'],
+            'example': sense['example_info'][0]['example'] if 'example_info' in sense else ""
+        })
 
     return returning
