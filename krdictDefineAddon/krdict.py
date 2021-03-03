@@ -24,7 +24,8 @@ def getTargetCodes(word, appKey=None, language=LANGUAGE) -> List[str]:
     r = requests.get(url,
             params={
                 'key': appKey,
-                'q': word
+                'q': word,
+                'sort': 'popular'
             })
 
     res: List[str] = []
@@ -89,7 +90,9 @@ def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
     returning['pronunciation'] = ""
 
     if 'original_language_info' in wordInfo:
-        orglang = wordInfo['original_language_info']
+        orglang = wordInfo['original_language_info'][0] \
+            if isinstance(wordInfo['original_language_info'], list) \
+            else wordInfo['original_language_info']
         returning['etymology'] = {
             'originalWord': orglang['original_language'],
             'originalLanguage': orglang['language_type']

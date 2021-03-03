@@ -50,7 +50,7 @@ def insertDefinition(editor):
 
         if 'etymology' in word:
             etymology = word['etymology']
-            definition += '<h5>Origins: ' + etymology['originalWord'] + '</h5><br>'
+            definition += '<h5>Origins: ' + etymology['originalLanguage'] + '</h5>'
             definition += etymology['originalWord'] + '<br>'
 
     ############# Output ##############
