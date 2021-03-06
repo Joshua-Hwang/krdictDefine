@@ -1,6 +1,6 @@
 import sys
 import requests
-import xmltodict # type: ignore
+from .libs import xmltodict # type: ignore
 from typing import Dict, List
 
 
