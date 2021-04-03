@@ -12,6 +12,7 @@ from .krdict import setKrdictKey, getTargetCodes, getView
 KEY_FIELD = 0 # already contains word and must append audio
 DEFINITION_FIELD = 1
 PRIMARY_SHORTCUT = "ctrl+alt+k"
+FORMAT = "full"
 
 def insertDefinition(editor):
     # Get the word
@@ -43,12 +44,14 @@ def insertDefinition(editor):
 
         for sense in word['senses']:
             definition += '<p>'
-            definition += sense['definition'] + '<br>'
-            if sense['example']:
-                definition += '<b>e.g.</b> ' + '"' + sense['example'] + '"' + '<br>'
-            definition += '</p>'
+            definition += sense['word'] + '<br>'
+            if FORMAT == "full":
+                definition += sense['definition'] + '<br>'
+                if sense['example']:
+                    definition += '<b>e.g.</b> ' + '"' + sense['example'] + '"' + '<br>'
+                definition += '</p>'
 
-        if 'etymology' in word:
+        if FORMAT == "full" and 'etymology' in word:
             etymology = word['etymology']
             definition += '<h5>Origins: ' + etymology['originalLanguage'] + '</h5>'
             definition += etymology['originalWord'] + '<br>'
@@ -79,4 +82,4 @@ addHook("setupEditorButtons", addMyButton)
 
 config = mw.addonManager.getConfig(__name__) # type: ignore
 setKrdictKey(config["APP_KEY"]) # type: ignore
-
+FORMAT = config["FORMAT"] # type: ignore

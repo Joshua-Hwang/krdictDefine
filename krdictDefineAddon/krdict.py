@@ -1,6 +1,6 @@
 import sys
 import requests
-from .libs import xmltodict # type: ignore
+from .libs import xmltodict
 from typing import Dict, List
 
 
@@ -58,6 +58,7 @@ def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
         }
         partOfSpeech: str,
         senses: List[{
+            word: str,
             definition: str,
             example: str
         }]
@@ -84,6 +85,7 @@ def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
     if 'error' in xml:
         raise requests.exceptions.HTTPError(response=r)
 
+    #print(xml)
     wordInfo = xml['channel']['item']["word_info"]
 
     returning['word'] = wordInfo["word"]
@@ -110,6 +112,7 @@ def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
         senses = [sense]
     for sense in senses:
         returning['senses'].append({
+            'word': sense['translation']['trans_word'],
             'definition': sense['translation']['trans_dfn'],
             'example': sense['example_info'][0]['example'] if 'example_info' in sense else ""
         })
