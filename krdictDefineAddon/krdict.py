@@ -58,7 +58,7 @@ def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
         }
         partOfSpeech: str,
         senses: List[{
-            word: str,
+            word: str or None,
             definition: str,
             example: str
         }]
@@ -116,5 +116,6 @@ def getView(targetCode, appKey=None, language=LANGUAGE) -> object:
             'definition': sense['translation']['trans_dfn'],
             'example': sense['example_info'][0]['example'] if 'example_info' in sense else ""
         })
+    #print(returning)
 
     return returning

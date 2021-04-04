@@ -44,7 +44,8 @@ def insertDefinition(editor):
 
         for sense in word['senses']:
             definition += '<p>'
-            definition += sense['word'] + '<br>'
+            if sense['word']:
+                definition += sense['word'] + '<br>'
             if FORMAT == "full":
                 definition += sense['definition'] + '<br>'
                 if sense['example']:
