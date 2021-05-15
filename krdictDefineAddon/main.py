@@ -52,7 +52,7 @@ def insertDefinition(editor):
                     definition += '<b>e.g.</b> ' + '"' + sense['example'] + '"' + '<br>'
                 definition += '</p>'
 
-        if FORMAT == "full" and 'etymology' in word:
+        if FORMAT.lower() == "full" and 'etymology' in word:
             etymology = word['etymology']
             definition += '<h5>Origins: ' + etymology['originalLanguage'] + '</h5>'
             definition += etymology['originalWord'] + '<br>'
